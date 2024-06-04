@@ -1,3 +1,4 @@
+using Application.Managers;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -27,7 +28,8 @@ namespace Application.Repositories
             }
 
             GameObject playerObject = Object.Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);
-            playerObject.GetComponent<NetworkObject>().SpawnWithOwnership(clientId);
+            playerObject.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
+            
             return playerObject;
         }
     }

@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Netcode;
 using Application.Repositories;
+using Domain.Entities;
 
 namespace Application.Managers
 {
@@ -8,8 +9,9 @@ namespace Application.Managers
     {
         [SerializeField] private GameObject playerPrefab;
         [SerializeField] private Transform[] spawnPoints;
+
         private PlayerFactory _playerFactory;
-        private PlayerManager playerManager;
+        private PlayerManager _playerManager;
 
         private NetworkVariable<int> _networkPosIndex =
             new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone);
@@ -17,18 +19,23 @@ namespace Application.Managers
         private void Awake()
         {
             _playerFactory = new PlayerFactory(playerPrefab, spawnPoints);
-            playerManager = new PlayerManager(_playerFactory);
+            _playerManager = new PlayerManager(_playerFactory);
         }
 
         public override void OnNetworkSpawn()
         {
-            SpawnPlayerServerRpc(NetworkManager.Singleton.LocalClientId);
+            if (IsServer)
+            {
+                NetworkManager.OnClientConnectedCallback += SpawnPlayer;
+            }
+
+            
         }
 
-        [ServerRpc(RequireOwnership = false)]
-        private void SpawnPlayerServerRpc(ulong playerId)
+
+        private void SpawnPlayer(ulong playerId)
         {
-            playerManager.HandleClientConnected(playerId, _networkPosIndex.Value);
+            _playerManager.HandleClientConnected(playerId, _networkPosIndex.Value);
             _networkPosIndex.Value += 1;
         }
 
@@ -37,6 +44,8 @@ namespace Application.Managers
             base.OnDestroy();
             MatchmakingService.LeaveLobby();
             _networkPosIndex.Value = 0;
+            if (NetworkManager.Singleton != null)NetworkManager.Singleton.OnClientConnectedCallback -= SpawnPlayer;
+
             if (NetworkManager.Singleton != null) NetworkManager.Singleton.Shutdown();
         }
     }

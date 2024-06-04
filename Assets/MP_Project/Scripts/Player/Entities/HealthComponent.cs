@@ -1,24 +1,32 @@
+using Application.Managers;
 using Core.Interfaces;
 using UnityEngine;
 using Unity.Netcode;
-using UnityEngine.Serialization;
 
 namespace Domain.Entities
 {
     public class HealthComponent : NetworkBehaviour, IHealth
     {
-         [SerializeField] private int _maxHealth = 100;
-        [SerializeField] private Animator _playerAnimator;
+        [SerializeField] private int _maxHealth = 100;
         private NetworkVariable<int> _currentHealth = new NetworkVariable<int>();
 
         public int CurrentHealth => _currentHealth.Value;
 
         public override void OnNetworkSpawn()
         {
+            
             if (IsServer)
             {
                 _currentHealth.Value = _maxHealth;
             }
+
+            PlayerHealthRegistry.AddPlayerHealthComponent(this);
+        }
+
+        public override void OnNetworkDespawn()
+        {
+            base.OnNetworkDespawn();
+            PlayerHealthRegistry.Players.Remove(this);
         }
 
         public void TakeDamage(int damage)

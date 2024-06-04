@@ -11,7 +11,7 @@ namespace Domain.Entities
         [SerializeField] private Rigidbody2D _rb;
         [SerializeField] private SpriteRenderer _spriteRenderer;
         [SerializeField] private BoxCollider2D _boxCollider2D;
-        [SerializeField] private Animator _playerAnimator;
+        [SerializeField] private PlayerAnimatorController _playerAnimatorController;
 
         private Camera _mainCamera;
         private float _minX, _maxX, _minY, _maxY;
@@ -43,8 +43,8 @@ namespace Domain.Entities
             float moveY = Input.GetAxis("Vertical");
             Vector2 movement = new Vector2(moveX, moveY);
             float speed = Mathf.Sqrt(Mathf.Abs(moveX) + Mathf.Abs(moveY));
+            _playerAnimatorController.SetWalk(speed);
 
-            _playerAnimator.SetFloat("Speed", speed);
             if (moveX > 0)
             {
                 UpdateFlipXServerRpc(false);

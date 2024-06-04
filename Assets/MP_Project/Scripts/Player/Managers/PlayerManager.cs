@@ -1,4 +1,9 @@
+using System.Collections.Generic;
+using System.Linq;
 using Application.Repositories;
+using Domain.Entities;
+using Unity.Netcode;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 
 namespace Application.Managers
@@ -9,13 +14,14 @@ namespace Application.Managers
 
         public PlayerManager(PlayerFactory playerFactory)
         {
-            this._playerFactory = playerFactory;
+            _playerFactory = playerFactory;
         }
+
 
         public void HandleClientConnected(ulong clientId, int playerIndex)
         {
             Transform spawnPoint = GetSpawnPoint(playerIndex);
-            GameObject playerObject = _playerFactory.SpawnPlayer(clientId, spawnPoint);
+            var player = _playerFactory.SpawnPlayer(clientId, spawnPoint);
         }
 
         private Transform GetSpawnPoint(int index)
