@@ -14,7 +14,6 @@ namespace Domain.Entities
 
         public override void OnNetworkSpawn()
         {
-            
             if (IsServer)
             {
                 _currentHealth.Value = _maxHealth;
@@ -51,7 +50,7 @@ namespace Domain.Entities
 
         private void Die()
         {
-            gameObject.SetActive(false);
+            GetComponent<NetworkObject>().Despawn(true);
         }
     }
 }

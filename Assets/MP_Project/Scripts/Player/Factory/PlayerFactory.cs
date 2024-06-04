@@ -14,6 +14,7 @@ namespace Application.Repositories
             this.playerPrefab = playerPrefab;
             this.spawnPoints = spawnPoints;
         }
+
         public Transform[] GetSpawnPoints()
         {
             return spawnPoints;
@@ -29,7 +30,7 @@ namespace Application.Repositories
 
             GameObject playerObject = Object.Instantiate(playerPrefab, spawnPoint.position, spawnPoint.rotation);
             playerObject.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId);
-            
+
             return playerObject;
         }
     }

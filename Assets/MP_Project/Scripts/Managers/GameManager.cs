@@ -24,16 +24,11 @@ namespace Application.Managers
 
         public override void OnNetworkSpawn()
         {
-            if (IsServer)
-            {
-                NetworkManager.OnClientConnectedCallback += SpawnPlayer;
-            }
-
-            
+            SpawnPlayerServerRpc(NetworkManager.LocalClientId);
         }
 
-
-        private void SpawnPlayer(ulong playerId)
+        [ServerRpc(RequireOwnership = false)]
+        private void SpawnPlayerServerRpc(ulong playerId)
         {
             _playerManager.HandleClientConnected(playerId, _networkPosIndex.Value);
             _networkPosIndex.Value += 1;
@@ -44,7 +39,6 @@ namespace Application.Managers
             base.OnDestroy();
             MatchmakingService.LeaveLobby();
             _networkPosIndex.Value = 0;
-            if (NetworkManager.Singleton != null)NetworkManager.Singleton.OnClientConnectedCallback -= SpawnPlayer;
 
             if (NetworkManager.Singleton != null) NetworkManager.Singleton.Shutdown();
         }

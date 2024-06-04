@@ -11,10 +11,6 @@ public static class PlayerHealthRegistry
     public static void AddPlayerHealthComponent(HealthComponent player)
     {
         Players.Add(player);
-        foreach (var VARIABLE in Players)
-        {
-            Debug.Log(VARIABLE.name);
-        }
     }
 
     public static List<HealthComponent> GetPlayersHealthComponent()

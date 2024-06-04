@@ -20,7 +20,7 @@ public class PlayerAnimatorController : MonoBehaviour
     // This method should be called as an Animation Event at the end of the attack animation
     public void OnAttackAnimationFinished()
     {
-        var attackComponent = GetComponent<AttackComponent>();
+        var attackComponent = GetComponentInParent<AttackComponent>();
         if (attackComponent != null)
         {
             attackComponent.PerformAttack();
