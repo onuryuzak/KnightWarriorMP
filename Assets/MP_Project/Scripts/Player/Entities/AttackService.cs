@@ -8,22 +8,33 @@ using Domain.Entities;
 namespace Services
 {
     public class AttackService : IAttackService
-    { public void ExecuteAttack(GameObject attacker, float attackRange, int attackDamage)
+    {
+        public void ExecuteAttack(GameObject attacker, float attackRange, int attackDamage)
         {
+            if (attacker.GetComponent<Rigidbody2D>().velocity.sqrMagnitude <= 0)
+            {
+                return;
+            }
+
             var players = PlayerHealthRegistry.GetPlayersHealthComponent();
-            var targets = players.Where(player => player.gameObject != attacker &&
-                                                  Vector3.Distance(attacker.transform.position,
-                                                      player.transform.position) <= attackRange);
+            var targets = players.Where(player =>
+                player.gameObject != attacker &&
+                Vector3.Distance(attacker.transform.position, player.transform.position) <= attackRange);
 
             var target = targets.FirstOrDefault();
             if (target != null)
             {
-                target.GetComponent<HealthComponent>().TakeDamage(attackDamage);
+                target.GetComponent<HealthComponent>().TakeDamageServerRpc(attackDamage);
             }
         }
 
         public bool IsTargetInRange(GameObject attacker, float attackRange)
         {
+            if (attacker.GetComponent<Rigidbody2D>().velocity.sqrMagnitude <= 0)
+            {
+                return false;
+            }
+
             var players = PlayerHealthRegistry.GetPlayersHealthComponent();
             return players.Any(player => player.gameObject != attacker &&
                                          Vector3.Distance(attacker.transform.position, player.transform.position) <=

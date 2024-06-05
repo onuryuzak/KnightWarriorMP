@@ -3,7 +3,7 @@ namespace Core.Interfaces
     public interface IHealth
     {
         int CurrentHealth { get; }
-        void TakeDamage(int damage);
+        void TakeDamageServerRpc(int damage);
         void Heal(int amount);
     }
 }

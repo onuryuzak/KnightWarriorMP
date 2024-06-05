@@ -2,6 +2,7 @@ using Application.Managers;
 using Core.Interfaces;
 using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.Events;
 
 namespace Domain.Entities
 {
@@ -11,6 +12,7 @@ namespace Domain.Entities
         private NetworkVariable<int> _currentHealth = new NetworkVariable<int>();
 
         public int CurrentHealth => _currentHealth.Value;
+        public UnityEvent OnHealthChanged;
 
         public override void OnNetworkSpawn()
         {
@@ -19,16 +21,21 @@ namespace Domain.Entities
                 _currentHealth.Value = _maxHealth;
             }
 
+            _currentHealth.OnValueChanged += OnHealthChangedCallback;
+
             PlayerHealthRegistry.AddPlayerHealthComponent(this);
         }
 
         public override void OnNetworkDespawn()
         {
             base.OnNetworkDespawn();
+            _currentHealth.OnValueChanged -= OnHealthChangedCallback;
+
             PlayerHealthRegistry.Players.Remove(this);
         }
 
-        public void TakeDamage(int damage)
+        [ServerRpc(RequireOwnership = false)]
+        public void TakeDamageServerRpc(int damage)
         {
             if (!IsServer) return;
             _currentHealth.Value -= damage;
@@ -51,6 +58,21 @@ namespace Domain.Entities
         private void Die()
         {
             GetComponent<NetworkObject>().Despawn(true);
+        }
+
+        private void OnHealthChangedCallback(int previousValue, int newValue)
+        {
+            OnHealthChanged?.Invoke();
+        }
+
+        public int GetHealth()
+        {
+            return _currentHealth.Value;
+        }
+
+        public float GetHealthPercentage()
+        {
+            return (float)_currentHealth.Value / _maxHealth;
         }
     }
 }
