@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Application.Managers;
 using Domain.Entities;
+using Unity.Netcode;
 
 namespace Services
 {
@@ -24,7 +25,8 @@ namespace Services
             var target = targets.FirstOrDefault();
             if (target != null)
             {
-                target.GetComponent<HealthComponent>().TakeDamageServerRpc(attackDamage);
+                var ownerId = attacker.GetComponent<NetworkObject>().OwnerClientId;
+                target.GetComponent<HealthComponent>().TakeDamageServerRpc(attackDamage, ownerId);
             }
         }
 

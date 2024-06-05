@@ -8,6 +8,7 @@ namespace Domain.Entities
 {
     public class HealthComponent : NetworkBehaviour, IHealth
     {
+        [SerializeField] private PlayerAnimatorController _playerAnimatorController;
         [SerializeField] private int _maxHealth = 100;
         private NetworkVariable<int> _currentHealth = new NetworkVariable<int>();
 
@@ -35,13 +36,13 @@ namespace Domain.Entities
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void TakeDamageServerRpc(int damage)
+        public void TakeDamageServerRpc(int damage, ulong attackerId)
         {
             if (!IsServer) return;
             _currentHealth.Value -= damage;
             if (_currentHealth.Value <= 0)
             {
-                Die();
+                Die(attackerId);
             }
         }
 
@@ -55,8 +56,14 @@ namespace Domain.Entities
             }
         }
 
-        private void Die()
+        private void Die(ulong attackerId)
         {
+            var playerController = GetComponent<PlayerController>();
+            if (playerController != null)
+            {
+                playerController.KillPlayerServerRpc(attackerId, NetworkObject.OwnerClientId);
+            }
+
             GetComponent<NetworkObject>().Despawn(true);
         }
 

@@ -57,6 +57,25 @@ namespace Domain.Entities
             _rb.velocity = movement * _speed;
         }
 
+        [ServerRpc(RequireOwnership = false)]
+        public void KillPlayerServerRpc(ulong killerClientId, ulong victimClientId)
+        {
+            ShowKillMessageClientRpc(killerClientId, victimClientId);
+        }
+
+        [ClientRpc]
+        private void ShowKillMessageClientRpc(ulong killerClientId, ulong victimClientId)
+        {
+            if (NetworkManager.Singleton.LocalClientId == victimClientId)
+            {
+                UIManager.Instance.ShowMessage("YOU DIED");
+            }
+            else if (NetworkManager.Singleton.LocalClientId == killerClientId)
+            {
+                UIManager.Instance.ShowMessage("YOU WON!");
+            }
+        }
+
         [ServerRpc]
         void UpdateFlipXServerRpc(bool flipX)
         {
